@@ -5,27 +5,6 @@ on:
 permissions:
   contents: read
 jobs:
-  windows:
-    name: Probe windows-latest
-    runs-on: windows-latest
-    timeout-minutes: 2
-    steps:
-      - name: Identify executed probe
-        run: echo "RUNNER_PROBE r-56e76ddd4fcb windows-latest"
-  depot_windows:
-    name: Probe depot-windows-2025-16
-    runs-on: depot-windows-2025-16
-    timeout-minutes: 2
-    steps:
-      - name: Identify executed probe
-        run: echo "RUNNER_PROBE r-56e76ddd4fcb depot-windows-2025-16"
-  linux_arm:
-    name: Probe ubuntu-24.04-arm
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 2
-    steps:
-      - name: Identify executed probe
-        run: echo "RUNNER_PROBE r-56e76ddd4fcb ubuntu-24.04-arm"
   linux_control:
     name: Probe ubuntu-latest
     runs-on: ubuntu-latest
