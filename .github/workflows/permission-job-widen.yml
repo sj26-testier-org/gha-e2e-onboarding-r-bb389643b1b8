@@ -1,0 +1,34 @@
+name: Permission job-widen
+on:
+  pull_request:
+    branches: [lab/r-bb389643b1b8]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: write
+    steps:
+      - name: Probe effective contents grant
+        env:
+          PROBE_TOKEN: ${{ github.token }}
+          PROBE_CASE: job-widen
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.error
+          event = json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          repo = os.environ['GITHUB_REPOSITORY']
+          assert repo == 'sj26-testier/gha-e2e-basic'
+          data = json.dumps({'content': 'PR permissions lab r-bb389643b1b8', 'encoding': 'utf-8'}).encode()
+          req = urllib.request.Request('https://api.github.com/repos/' + repo + '/git/blobs', data=data, headers={'Authorization': 'Bearer ' + os.environ['PROBE_TOKEN'], 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json'})
+          try:
+              with urllib.request.urlopen(req) as response:
+                  status = response.status
+          except urllib.error.HTTPError as error:
+              status = error.code
+          pr = event['pull_request']
+          print('PERMISSION_PROBE ' + json.dumps({'case': os.environ['PROBE_CASE'], 'event': os.environ['GITHUB_EVENT_NAME'], 'pr': pr['number'], 'head_repo': pr['head']['repo']['full_name'], 'base_repo': pr['base']['repo']['full_name'], 'head_sha': pr['head']['sha'], 'github_sha': os.environ['GITHUB_SHA'], 'git_blob_post_status': status}, sort_keys=True))
+          assert status in (201, 403), status
+          PY
